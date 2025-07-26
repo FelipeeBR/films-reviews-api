@@ -1,6 +1,7 @@
 package com.filmsreviews.filmsreviews_api.controller;
 
 import java.time.Instant;
+import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.filmsreviews.filmsreviews_api.controller.dto.LoginRequest;
 import com.filmsreviews.filmsreviews_api.controller.dto.LoginResponse;
+import com.filmsreviews.filmsreviews_api.entities.Role;
 import com.filmsreviews.filmsreviews_api.repository.UserRepository;
 
 @RestController
@@ -38,10 +40,16 @@ public class TokenController {
 
         var now = Instant.now();
         var expiresIn = 300L;
+
+        var scopes = user.get().getRoles()
+        .stream().map(Role::getName)
+        .collect(Collectors.joining(" "));
         
         var clains = JwtClaimsSet.builder().issuer("mybackend")
         .subject(user.get().getId().toString()).expiresAt(now.plusSeconds(expiresIn))
-        .expiresAt(now.plusSeconds(expiresIn)).build();
+        .expiresAt(now.plusSeconds(expiresIn))
+        .claim("scope", scopes)
+        .build();
 
         var jwtValue = jwtEncoder.encode(JwtEncoderParameters.from(clains)).getTokenValue();
 
