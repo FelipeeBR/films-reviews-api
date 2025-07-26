@@ -2,18 +2,26 @@ package com.filmsreviews.filmsreviews_api.controller;
 
 import java.util.UUID;
 
+import javax.swing.text.html.parser.Entity;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.filmsreviews.filmsreviews_api.controller.dto.CreateFilmDto;
+import com.filmsreviews.filmsreviews_api.controller.dto.FilmItemDto;
 import com.filmsreviews.filmsreviews_api.entities.Film;
 import com.filmsreviews.filmsreviews_api.entities.Role;
 import com.filmsreviews.filmsreviews_api.repository.FilmRepository;
@@ -64,4 +72,23 @@ public class FilmController {
         
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/films")
+    public ResponseEntity<Page<FilmItemDto>> listFilms(
+        @RequestParam(value = "page", defaultValue = "0") int page,
+        @RequestParam(value = "size", defaultValue = "10") int size) {
+
+    Page<FilmItemDto> films = filmRepository.findAll(
+        PageRequest.of(page, size, Sort.Direction.DESC, "creationTimestamp")
+    ).map(film -> new FilmItemDto(
+        film.getFilmId(),
+        film.getTitle(),
+        film.getGenre(),
+        film.getDescription(),
+        film.getImage(),
+        film.getUser().getUsername()
+    ));
+
+    return ResponseEntity.ok(films);
+}
 }
