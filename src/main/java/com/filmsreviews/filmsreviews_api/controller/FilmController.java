@@ -2,8 +2,6 @@ package com.filmsreviews.filmsreviews_api.controller;
 
 import java.util.UUID;
 
-import javax.swing.text.html.parser.Entity;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
