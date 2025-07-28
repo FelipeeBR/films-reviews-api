@@ -20,6 +20,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.filmsreviews.filmsreviews_api.controller.dto.CreateFilmDto;
 import com.filmsreviews.filmsreviews_api.controller.dto.FilmItemDto;
+import com.filmsreviews.filmsreviews_api.controller.dto.FilmWithRatingsDto;
+import com.filmsreviews.filmsreviews_api.controller.dto.RatingDto;
 import com.filmsreviews.filmsreviews_api.entities.Film;
 import com.filmsreviews.filmsreviews_api.entities.Role;
 import com.filmsreviews.filmsreviews_api.repository.FilmRepository;
@@ -76,17 +78,38 @@ public class FilmController {
         @RequestParam(value = "page", defaultValue = "0") int page,
         @RequestParam(value = "size", defaultValue = "10") int size) {
 
-    Page<FilmItemDto> films = filmRepository.findAll(
-        PageRequest.of(page, size, Sort.Direction.DESC, "creationTimestamp")
-    ).map(film -> new FilmItemDto(
+        Page<FilmItemDto> films = filmRepository.findAll(
+            PageRequest.of(page, size, Sort.Direction.DESC, "creationTimestamp")
+        ).map(film -> new FilmItemDto(
+            film.getFilmId(),
+            film.getTitle(),
+            film.getGenre(),
+            film.getDescription(),
+            film.getImage(),
+            film.getUser().getUsername()
+        ));
+
+        return ResponseEntity.ok(films);
+    }
+
+    @GetMapping("/films/{id}")
+    public ResponseEntity<FilmWithRatingsDto> getFilm(@PathVariable("id") Long id) {
+        var film = filmRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        var ratings = film.getRatings().stream()
+        .map(rating -> new RatingDto(
+            rating.getDescription(),
+            rating.getStars(),
+            rating.getUser().getUsername()
+        ))
+        .toList();
+
+       var dto = new FilmWithRatingsDto(
         film.getFilmId(),
         film.getTitle(),
-        film.getGenre(),
         film.getDescription(),
-        film.getImage(),
-        film.getUser().getUsername()
-    ));
-
-    return ResponseEntity.ok(films);
-}
+        ratings
+    );
+        return ResponseEntity.ok(dto);
+    }
 }
