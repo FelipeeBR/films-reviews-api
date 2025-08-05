@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+  postgres:
+    container_name: filmsreviews_db
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: filmsreviews
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+  filmsreviews:
+    container_name: filmsreviews_api
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/filmsreviews
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    depends_on:
+      - postgres
