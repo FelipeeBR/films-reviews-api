@@ -1,3 +1,4 @@
 # App para avaliar filmes cadastrados
 
-![diagram](https://github.com/user-attachments/assets/698a550e-9b58-4a01-9721-97d368b7388e)
+![Diagram](https://github.com/user-attachments/assets/31eefe40-0ad6-478a-b860-1ce77114adb1)
+
